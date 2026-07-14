@@ -1,815 +1,828 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Social Dinámica - Don Smaily Chickles</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #FF6B8B;
-            --secondary: #6A5ACD;
-            --accent: #00D4AA;
-            --background: #1A1A2E;
-            --card-bg: #16213E;
-            --text: #FFFFFF;
-            --text-secondary: #B0B0D0;
-            --shadow: rgba(0, 0, 0, 0.3);
-            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Don Smaily Chickles · Compositor de Publicaciones</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <!-- ═══ TailwindCSS (CDN) ═══ -->
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            padding-bottom: 40px;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+  <!-- ═══ Google Fonts ═══ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 20px;
-            background: var(--gradient);
-            box-shadow: 0 10px 30px var(--shadow);
-            animation: headerGlow 3s infinite alternate;
-        }
+  <style>
+    /* ═══════════════════════════════════════════
+       ESTILOS PERSONALIZADOS
+       ═══════════════════════════════════════════ */
 
-        @keyframes headerGlow {
-            0% { box-shadow: 0 10px 30px var(--shadow); }
-            100% { box-shadow: 0 10px 40px rgba(255, 107, 139, 0.5); }
-        }
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: #08030f; overflow-x: hidden; }
 
-        h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            text-shadow: 3px 3px 0 var(--secondary);
-            letter-spacing: 1px;
-        }
+    /* ── Fondo animado con blobs de color ── */
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      animation: float 22s infinite ease-in-out;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .blob-1 { width: 520px; height: 520px; background: #a855f7; top: -120px; left: -120px; }
+    .blob-2 { width: 420px; height: 420px; background: #ec4899; top: 25%; right: -120px; animation-delay: -5s; }
+    .blob-3 { width: 480px; height: 480px; background: #06b6d4; bottom: -120px; left: 25%; animation-delay: -10s; }
+    .blob-4 { width: 380px; height: 380px; background: #f97316; top: 55%; left: -80px; animation-delay: -15s; }
 
-        .tagline {
-            font-size: 1.2rem;
-            color: var(--text);
-            opacity: 0.9;
-        }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%      { transform: translate(60px, -60px) scale(1.12); }
+      66%      { transform: translate(-40px, 40px) scale(0.88); }
+    }
 
-        .composer {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 25px var(--shadow);
-            border: 2px solid var(--secondary);
-            transition: transform 0.3s ease;
-        }
+    /* ── Glass morphism ── */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-        .composer:hover {
-            transform: translateY(-5px);
-        }
+    /* ── Borde con gradiente ── */
+    .gradient-border {
+      position: relative;
+    }
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 1.5px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(168,85,247,0.6), rgba(236,72,153,0.4), rgba(6,182,212,0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+    /* ── Texto con gradiente ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #c084fc 0%, #f472b6 45%, #fb923c 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-right: 15px;
-            border: 3px solid var(--accent);
-        }
+    /* ── Botón publicar con brillo ── */
+    .btn-glow {
+      box-shadow: 0 0 22px rgba(168, 85, 247, 0.45), 0 0 44px rgba(236, 72, 153, 0.25);
+      transition: all 0.3s ease;
+    }
+    .btn-glow:hover:not(:disabled) {
+      box-shadow: 0 0 32px rgba(168, 85, 247, 0.65), 0 0 64px rgba(236, 72, 153, 0.45);
+      transform: translateY(-2px);
+    }
+    .btn-glow:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .username {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
-            color: var(--accent);
-        }
+    /* ── Animación entrada de publicación ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .post-enter { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        .composer textarea {
-            width: 100%;
-            height: 120px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid var(--primary);
-            border-radius: 15px;
-            padding: 15px;
-            font-size: 1.1rem;
-            color: var(--text);
-            resize: none;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
-        .composer textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.3);
-        }
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #a855f7, #ec4899);
+      border-radius: 4px;
+    }
 
-        .media-upload {
-            margin-bottom: 15px;
-        }
+    /* ── Spinner ── */
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top: 3px solid #a855f7;
+      border-right: 3px solid #ec4899;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .upload-label {
-            display: inline-block;
-            background: var(--gradient);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-right: 10px;
-        }
+    /* ── Hover en tarjetas ── */
+    .post-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .post-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(168, 85, 247, 0.15);
+    }
 
-        .upload-label:hover {
-            transform: scale(1.05);
-        }
+    /* ── Media hover ── */
+    .media-container { transition: transform 0.35s ease; overflow: hidden; }
+    .media-container:hover { transform: scale(1.01); }
 
-        .upload-label i {
-            margin-right: 8px;
-        }
+    /* ── Modal de compartir ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      transform: scale(0.92) translateY(10px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop.show .modal-content { transform: scale(1) translateY(0); }
 
-        .file-name {
-            display: inline-block;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-left: 10px;
-        }
+    /* ── Línea de acento superior en tarjetas ── */
+    .accent-line {
+      height: 3px;
+      border-radius: 16px 16px 0 0;
+    }
 
-        .preview-container {
-            margin-top: 15px;
-            display: none;
-        }
+    /* ── Avatar ── */
+    .avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .avatar-sm { width: 40px; height: 40px; font-size: 14px; }
+    .avatar-md { width: 48px; height: 48px; font-size: 16px; }
 
-        .preview-container img, .preview-container video {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 10px;
-            border: 2px solid var(--primary);
-        }
+    /* ── Textarea auto-resizable ── */
+    textarea { field-sizing: content; max-height: 200px; }
 
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .btn-post {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 15px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-post:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(255, 107, 139, 0.4);
-        }
-
-        .btn-post i {
-            margin-right: 8px;
-        }
-
-        .reaction-selector {
-            display: flex;
-            gap: 10px;
-        }
-
-        .reaction-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--secondary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.2rem;
-        }
-
-        .reaction-btn:hover, .reaction-btn.active {
-            background: var(--primary);
-            transform: scale(1.2);
-        }
-
-        .selected-reaction {
-            font-size: 1.5rem;
-        }
-
-        .posts-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .post {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 25px var(--shadow);
-            border-left: 5px solid var(--primary);
-            transition: transform 0.3s ease;
-        }
-
-        .post:hover {
-            transform: translateY(-3px);
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .post-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
-            font-size: 1.4rem;
-        }
-
-        .post-user {
-            font-family: 'Poppins', sans-serif;
-            color: var(--accent);
-            font-size: 1.2rem;
-        }
-
-        .post-time {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 3px;
-        }
-
-        .post-content {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
-
-        .post-media {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .post-media img, .post-media video {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 10px;
-            border: 2px solid var(--secondary);
-        }
-
-        .post-stats {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .post-actions-bar {
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 10px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-        }
-
-        .action-btn:hover, .action-btn.liked {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--accent);
-        }
-
-        .action-btn i {
-            margin-right: 8px;
-        }
-
-        .comments-section {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: none;
-        }
-
-        .comment {
-            display: flex;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .comment-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-
-        .comment-content {
-            flex-grow: 1;
-        }
-
-        .comment-user {
-            font-weight: bold;
-            color: var(--accent);
-            font-size: 0.95rem;
-        }
-
-        .comment-text {
-            margin-top: 5px;
-            font-size: 0.9rem;
-        }
-
-        .add-comment {
-            display: flex;
-            margin-top: 15px;
-        }
-
-        .add-comment input {
-            flex-grow: 1;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--secondary);
-            border-radius: 20px;
-            padding: 10px 15px;
-            color: var(--text);
-            font-size: 0.9rem;
-        }
-
-        .add-comment input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .add-comment button {
-            background: var(--gradient);
-            border: none;
-            color: white;
-            border-radius: 20px;
-            padding: 0 20px;
-            margin-left: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .add-comment button:hover {
-            transform: scale(1.05);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-size: 1.2rem;
-            color: var(--accent);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--gradient);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px var(--shadow);
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .post-actions-bar {
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-            
-            .action-btn {
-                font-size: 0.9rem;
-                padding: 6px 10px;
-            }
-        }
-    </style>
+    /* ── Fade in general ── */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.4s ease; }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>SocialFlow</h1>
-            <p class="tagline">Comparte tus momentos con el mundo</p>
-        </header>
 
-        <div class="composer">
-            <div class="user-info">
-                <div class="avatar">DS</div>
-                <div>
-                    <div class="username">Don Smaily Chickles</div>
-                    <div class="user-status">Publicando desde SocialFlow</div>
-                </div>
-            </div>
-            
-            <textarea id="postContent" placeholder="¿Qué estás pensando, Don Smaily? ¡Compártelo con el mundo!"></textarea>
-            
-            <div class="media-upload">
-                <label for="mediaUpload" class="upload-label">
-                    <i class="fas fa-image"></i> Foto/Video
-                </label>
-                <input type="file" id="mediaUpload" accept="image/*,video/*" style="display: none;">
-                <span id="fileName" class="file-name"></span>
-                <div id="previewContainer" class="preview-container"></div>
-            </div>
-            
-            <div class="reaction-selector">
-                <div class="reaction-btn" data-reaction="❤️">❤️</div>
-                <div class="reaction-btn" data-reaction="😂">😂</div>
-                <div class="reaction-btn" data-reaction="😮">😮</div>
-                <div class="reaction-btn" data-reaction="😢">😢</div>
-                <div class="reaction-btn" data-reaction="👍">👍</div>
-            </div>
-            
-            <div class="post-actions">
-                <div>
-                    <button id="btnPost" class="btn-post">
-                        <i class="fas fa-paper-plane"></i> Publicar
-                    </button>
-                </div>
-                <div id="selectedReaction" class="selected-reaction"></div>
-            </div>
-        </div>
+<body class="min-h-screen text-white">
 
-        <div id="postsContainer" class="posts-container">
-            <div class="loading" id="loadingIndicator">
-                <i class="fas fa-spinner fa-spin"></i> Cargando publicaciones...
-            </div>
+  <!-- ═══ Fondo animado ═══ -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+  <div class="bg-blob blob-4"></div>
+
+  <!-- ═══ Contenido principal ═══ -->
+  <div class="relative z-10 max-w-2xl mx-auto px-4 py-8">
+
+    <!-- ── Header ── -->
+    <header class="text-center mb-8 fade-in">
+      <div class="inline-flex items-center gap-3 mb-3">
+        <div class="avatar avatar-md bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500">DS</div>
+        <h1 class="text-3xl font-extrabold gradient-text">Don Smaily Chickles</h1>
+      </div>
+      <p class="text-white/50 text-sm tracking-wide">Compositor de Publicaciones Dinámicas</p>
+    </header>
+
+    <!-- ── Compositor (oculto en vista de publicación individual) ── -->
+    <div id="composerSection" class="glass gradient-border rounded-2xl p-5 mb-8 fade-in">
+      <!-- Cabecera del compositor -->
+      <div class="flex items-center gap-3 mb-4">
+        <div class="avatar avatar-sm bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500">DS</div>
+        <div>
+          <p class="font-semibold text-sm">Don Smaily Chickles</p>
+          <p class="text-white/35 text-xs">Creando publicación…</p>
         </div>
+      </div>
+
+      <!-- Área de texto -->
+      <textarea
+        id="postContent"
+        rows="3"
+        placeholder="¿Qué quieres publicar hoy? ✨"
+        class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-white/25 focus:outline-none focus:border-purple-400/40 focus:ring-2 focus:ring-purple-500/15 resize-none transition-all text-sm leading-relaxed"
+      ></textarea>
+
+      <!-- Vista previa de media -->
+      <div id="mediaPreview" class="hidden mt-3 relative rounded-xl overflow-hidden border border-white/10">
+        <button id="removeMedia" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-red-500/80 rounded-full p-2 transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <img  id="previewImage" class="w-full max-h-80 object-contain bg-black/40 hidden" />
+        <video id="previewVideo" class="w-full max-h-80 object-contain bg-black/40 hidden" controls></video>
+      </div>
+
+      <!-- Acciones del compositor -->
+      <div class="flex items-center justify-between mt-4">
+        <button id="mediaBtn" class="flex items-center gap-2 px-4 py-2 glass rounded-xl hover:bg-white/10 transition-all text-sm font-medium">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Foto / Video
+        </button>
+        <input type="file" id="fileInput" accept="image/*,video/*" class="hidden" />
+
+        <button id="publishBtn" class="btn-glow px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 transition-all">
+          Publicar
+        </button>
+      </div>
     </div>
 
-    <div id="notification" class="notification"></div>
+    <!-- ── Botón volver (visible en vista individual) ── -->
+    <div id="backButton" class="hidden mb-4">
+      <a href="?" class="inline-flex items-center gap-2 text-white/50 hover:text-white transition-all text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Volver al feed
+      </a>
+    </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    <!-- ── Feed de publicaciones ── -->
+    <div id="feed" class="space-y-4">
 
-    /*
-      IMPORTANTE:
-      Reemplaza estos valores con los de tu proyecto de Supabase.
+      <!-- Estado de carga -->
+      <div id="loadingState" class="flex flex-col items-center justify-center py-20">
+        <div class="spinner mb-4"></div>
+        <p class="text-white/35 text-sm">Cargando publicaciones…</p>
+      </div>
 
-      Supabase > Project Settings > API
-    */
-        const SUPABASE_URL = 'https://pxtvlbujdmmelwbjrxqd.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_bY0OfnqwLsYQkuipvxj39g_QdvHtfii';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      <!-- Estado vacío -->
+      <div id="emptyState" class="hidden text-center py-20 fade-in">
+        <div class="text-6xl mb-4">✨</div>
+        <p class="text-white/40 text-lg mb-2">No hay publicaciones aún</p>
+        <p class="text-white/25 text-sm">¡Sé el primero en publicar algo increíble!</p>
+      </div>
 
-        // Datos del usuario actual
-        const currentUser = {
-            id: 'user_1',
-            name: 'Don Smaily Chickles',
-            avatar: 'DS'
-        };
+      <!-- Las publicaciones se insertan aquí dinámicamente -->
+    </div>
 
-        // Elementos del DOM
-        const postContent = document.getElementById('postContent');
-        const mediaUpload = document.getElementById('mediaUpload');
-        const fileName = document.getElementById('fileName');
-        const previewContainer = document.getElementById('previewContainer');
-        const btnPost = document.getElementById('btnPost');
-        const postsContainer = document.getElementById('postsContainer');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const notification = document.getElementById('notification');
-        const reactionBtns = document.querySelectorAll('.reaction-btn');
-        const selectedReactionEl = document.getElementById('selectedReaction');
+    <!-- ── Footer ── -->
+    <footer class="text-center mt-12 pb-6">
+      <p class="text-white/20 text-xs">Hecho con <span class="text-pink-400/50">♥</span> por Don Smaily Chickles</p>
+    </footer>
+  </div>
 
-        let selectedReaction = null;
-        let mediaFile = null;
+  <!-- ═══ Toast ═══ -->
+  <div id="toast" class="toast glass rounded-xl px-6 py-3 flex items-center gap-3 shadow-2xl">
+    <span id="toastIcon" class="text-green-400 text-lg">✓</span>
+    <span id="toastMessage" class="text-sm font-medium"></span>
+  </div>
 
-        // 📸 Vista previa de archivos
-        mediaUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+  <!-- ═══ Modal de compartir ═══ -->
+  <div id="shareModal" class="modal-backdrop">
+    <div class="modal-content glass gradient-border rounded-2xl p-6 max-w-md w-full">
+      <h3 class="text-lg font-bold mb-1 gradient-text">Compartir publicación</h3>
+      <p class="text-white/40 text-xs mb-4">Comparte el enlace donde quieras en internet</p>
 
-            mediaFile = file;
-            fileName.textContent = file.name;
-            previewContainer.innerHTML = '';
-            previewContainer.style.display = 'block';
+      <!-- Copiar enlace -->
+      <div class="flex items-center gap-2 mb-5">
+        <input id="shareLinkInput" type="text" readonly
+          class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white/60 focus:outline-none focus:border-purple-400/40" />
+        <button id="copyLinkBtn"
+          class="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-xs font-bold hover:opacity-90 transition-all whitespace-nowrap">
+          Copiar
+        </button>
+      </div>
 
-            if (file.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                previewContainer.appendChild(img);
-            } else if (file.type.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.controls = true;
-                previewContainer.appendChild(video);
-            }
+      <!-- Botones redes sociales -->
+      <div class="grid grid-cols-4 gap-3 mb-4">
+        <!-- WhatsApp -->
+        <button data-share="whatsapp" class="share-btn flex flex-col items-center gap-1.5 p-3 glass rounded-xl hover:bg-green-500/15 transition-all">
+          <svg class="w-7 h-7 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span class="text-[10px] font-medium">WhatsApp</span>
+        </button>
+        <!-- X / Twitter -->
+        <button data-share="twitter" class="share-btn flex flex-col items-center gap-1.5 p-3 glass rounded-xl hover:bg-white/10 transition-all">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <span class="text-[10px] font-medium">X</span>
+        </button>
+        <!-- Facebook -->
+        <button data-share="facebook" class="share-btn flex flex-col items-center gap-1.5 p-3 glass rounded-xl hover:bg-blue-500/15 transition-all">
+          <svg class="w-7 h-7 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          <span class="text-[10px] font-medium">Facebook</span>
+        </button>
+        <!-- Telegram -->
+        <button data-share="telegram" class="share-btn flex flex-col items-center gap-1.5 p-3 glass rounded-xl hover:bg-cyan-500/15 transition-all">
+          <svg class="w-7 h-7 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.387 4.025-1.627 4.476-1.635z"/>
+          </svg>
+          <span class="text-[10px] font-medium">Telegram</span>
+        </button>
+      </div>
+
+      <!-- Compartir nativo (Web Share API) -->
+      <button id="nativeShareBtn" class="hidden w-full py-2.5 glass rounded-xl text-sm font-medium hover:bg-white/10 transition-all mb-3 flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+        </svg>
+        Compartir con otras apps…
+      </button>
+
+      <button id="closeShareModal" class="w-full py-2.5 text-white/40 hover:text-white text-sm transition-all">
+        Cerrar
+      </button>
+    </div>
+  </div>
+ 
+  <!-- ═══ Supabase JS Client (CDN) ═══ -->
+  	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+
+    const SUPABASE_URL      = 'https://yokerpemiajbndpwapcl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlva2VycGVtaWFqYm5kcHdhcGNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4OTAwNzAsImV4cCI6MjA5OTQ2NjA3MH0.MgNJ1Gx7weZlwYwXV-lMH5svA2RkueGADu07PgJZmeM';
+    const STORAGE_BUCKET    = 'posts-media';
+    const AUTHOR_NAME       = 'Don Smaily Chickles';
+    const supabase = window.supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+
+    /* ──────────────────────────────────────────────
+       Referencias del DOM
+       ────────────────────────────────────────────── */
+    const postContent     = document.getElementById('postContent');
+    const mediaBtn        = document.getElementById('mediaBtn');
+    const fileInput       = document.getElementById('fileInput');
+    const mediaPreview    = document.getElementById('mediaPreview');
+    const previewImage    = document.getElementById('previewImage');
+    const previewVideo    = document.getElementById('previewVideo');
+    const removeMediaBtn  = document.getElementById('removeMedia');
+    const publishBtn      = document.getElementById('publishBtn');
+    const feed            = document.getElementById('feed');
+    const loadingState    = document.getElementById('loadingState');
+    const emptyState      = document.getElementById('emptyState');
+    const composerSection = document.getElementById('composerSection');
+    const backButton      = document.getElementById('backButton');
+    const toast           = document.getElementById('toast');
+    const toastMessage    = document.getElementById('toastMessage');
+    const toastIcon       = document.getElementById('toastIcon');
+    const shareModal      = document.getElementById('shareModal');
+    const shareLinkInput  = document.getElementById('shareLinkInput');
+    const copyLinkBtn     = document.getElementById('copyLinkBtn');
+    const closeShareModal = document.getElementById('closeShareModal');
+    const nativeShareBtn  = document.getElementById('nativeShareBtn');
+
+    /* ──────────────────────────────────────────────
+       Estado
+       ────────────────────────────────────────────── */
+    let selectedFile   = null;
+    let currentShareUrl = '';
+
+    /* ──────────────────────────────────────────────
+       Utilidades
+       ────────────────────────────────────────────── */
+
+    // Toast de notificación
+    function showToast(message, type = 'success') {
+      toastMessage.textContent = message;
+      toastIcon.textContent = type === 'success' ? '✓' : '✕';
+      toastIcon.className = type === 'success' ? 'text-green-400 text-lg' : 'text-red-400 text-lg';
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Tiempo relativo en español
+    function timeAgo(dateString) {
+      const date = new Date(dateString);
+      const now  = new Date();
+      const s = Math.floor((now - date) / 1000);
+      if (s < 60)    return 'ahora mismo';
+      const m = Math.floor(s / 60);
+      if (m < 60)    return `hace ${m} min`;
+      const h = Math.floor(m / 60);
+      if (h < 24)    return `hace ${h} h`;
+      const d = Math.floor(h / 24);
+      if (d < 7)     return `hace ${d} d`;
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // Gradientes aleatorios para acentos de color
+    const gradients = [
+      'from-purple-500 to-pink-500',
+      'from-cyan-500 to-blue-500',
+      'from-orange-500 to-red-500',
+      'from-green-500 to-emerald-500',
+      'from-indigo-500 to-purple-500',
+      'from-pink-500 to-rose-500',
+      'from-amber-500 to-orange-500',
+      'from-violet-500 to-fuchsia-500',
+      'from-teal-500 to-cyan-500',
+      'from-fuchsia-500 to-pink-500',
+    ];
+    function randomGradient() {
+      return gradients[Math.floor(Math.random() * gradients.length)];
+    }
+
+    // Escapar HTML para evitar inyección
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    /* ──────────────────────────────────────────────
+       Renderizar una publicación
+       ────────────────────────────────────────────── */
+    function renderPost(post, isNew = false) {
+      const gradient  = randomGradient();
+      const shareUrl  = `${window.location.origin}${window.location.pathname}?post=${post.id}`;
+      const wrapper   = document.createElement('div');
+      wrapper.className = `post-card glass gradient-border rounded-2xl overflow-hidden ${isNew ? 'post-enter' : 'fade-in'}`;
+      wrapper.id = `post-${post.id}`;
+
+      // Media (imagen o video)
+      let mediaHtml = '';
+      if (post.media_url && post.media_type === 'image') {
+        mediaHtml = `
+          <div class="media-container cursor-pointer mt-3 rounded-xl" onclick="window.open('${post.media_url}', '_blank')">
+            <img src="${post.media_url}" class="w-full max-h-[500px] object-cover" loading="lazy" />
+          </div>`;
+      } else if (post.media_url && post.media_type === 'video') {
+        mediaHtml = `
+          <div class="media-container mt-3 rounded-xl">
+            <video src="${post.media_url}" class="w-full max-h-[500px] object-cover" controls></video>
+          </div>`;
+      }
+
+      wrapper.innerHTML = `
+        <!-- Línea de acento de color -->
+        <div class="accent-line bg-gradient-to-r ${gradient}"></div>
+
+        <div class="p-5">
+          <!-- Cabecera: avatar + autor + tiempo + compartir -->
+          <div class="flex items-center gap-3 mb-3">
+            <div class="avatar avatar-sm bg-gradient-to-br ${gradient}">DS</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-sm truncate">${escapeHtml(post.author || AUTHOR_NAME)}</p>
+              <p class="text-white/35 text-xs">${timeAgo(post.created_at)}</p>
+            </div>
+            <button onclick="sharePost('${post.id}', '${shareUrl}')"
+              class="p-2 glass rounded-lg hover:bg-white/10 transition-all group" title="Compartir">
+              <svg class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Contenido textual -->
+          ${post.content ? `<p class="text-white/90 text-sm leading-relaxed whitespace-pre-wrap break-words">${escapeHtml(post.content)}</p>` : ''}
+
+          <!-- Media -->
+          ${mediaHtml}
+        </div>
+      `;
+
+      return wrapper;
+    }
+
+    /* ──────────────────────────────────────────────
+       Cargar todas las publicaciones (feed)
+       ────────────────────────────────────────────── */
+    async function loadPosts() {
+      if (!isSupabaseConfigured()) {
+        showConfigWarning();
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        loadingState.classList.add('hidden');
+
+        if (!data || data.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        data.forEach(post => feed.appendChild(renderPost(post)));
+
+      } catch (error) {
+        console.error('Error al cargar publicaciones:', error);
+        loadingState.classList.add('hidden');
+        feed.innerHTML = `
+          <div class="glass rounded-2xl p-8 text-center fade-in">
+            <div class="text-4xl mb-4">⚠️</div>
+            <h3 class="text-lg font-bold mb-2">Error al cargar</h3>
+            <p class="text-white/40 text-sm">${escapeHtml(error.message)}</p>
+          </div>`;
+      }
+    }
+
+    /* ──────────────────────────────────────────────
+       Cargar una sola publicación (vista compartida)
+       ────────────────────────────────────────────── */
+    async function loadSinglePost(postId) {
+      composerSection.classList.add('hidden');
+      backButton.classList.remove('hidden');
+
+      if (!isSupabaseConfigured()) {
+        showConfigWarning();
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('id', postId)
+          .single();
+
+        if (error) throw error;
+
+        if (!data) {
+          loadingState.classList.add('hidden');
+          feed.innerHTML = `
+            <div class="glass rounded-2xl p-8 text-center fade-in">
+              <div class="text-4xl mb-4">🔍</div>
+              <h3 class="text-lg font-bold mb-2">Publicación no encontrada</h3>
+              <p class="text-white/40 text-sm">Puede que haya sido eliminada.</p>
+            </div>`;
+          return;
+        }
+
+        loadingState.classList.add('hidden');
+        const postEl = renderPost(data);
+        postEl.classList.add('post-enter');
+        feed.appendChild(postEl);
+
+      } catch (error) {
+        console.error('Error al cargar publicación:', error);
+        loadingState.classList.add('hidden');
+        feed.innerHTML = `
+          <div class="glass rounded-2xl p-8 text-center fade-in">
+            <div class="text-4xl mb-4">⚠️</div>
+            <h3 class="text-lg font-bold mb-2">Error</h3>
+            <p class="text-white/40 text-sm">${escapeHtml(error.message)}</p>
+          </div>`;
+      }
+    }
+
+    /* ──────────────────────────────────────────────
+       Aviso de configuración pendiente
+       ────────────────────────────────────────────── */
+    function showConfigWarning() {
+      loadingState.classList.add('hidden');
+      feed.innerHTML = `
+        <div class="glass gradient-border rounded-2xl p-8 text-center fade-in">
+          <div class="text-5xl mb-4">⚙️</div>
+          <h3 class="text-lg font-bold mb-3">Configuración pendiente</h3>
+          <p class="text-white/50 text-sm mb-4">Necesitas conectar tu proyecto de Supabase.</p>
+          <div class="text-left bg-black/30 rounded-xl p-4 text-xs text-white/40 font-mono mb-4">
+            <p class="text-white/60 mb-2">Edita estas constantes en el código:</p>
+            <p>const SUPABASE_URL = 'https://xxx.supabase.co';</p>
+            <p>const SUPABASE_ANON_KEY = 'ey...';</p>
+          </div>
+          <p class="text-white/30 text-xs">Encuéntralas en Supabase → Project Settings → API</p>
+        </div>`;
+    }
+
+    /* ──────────────────────────────────────────────
+       Selección de archivo (foto/video)
+       ────────────────────────────────────────────── */
+    mediaBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Validar tamaño (50 MB máximo)
+      if (file.size > 50 * 1024 * 1024) {
+        showToast('El archivo es demasiado grande (máx. 50 MB)', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      selectedFile = file;
+
+      if (file.type.startsWith('image/')) {
+        previewImage.src = URL.createObjectURL(file);
+        previewImage.classList.remove('hidden');
+        previewVideo.classList.add('hidden');
+      } else if (file.type.startsWith('video/')) {
+        previewVideo.src = URL.createObjectURL(file);
+        previewVideo.classList.remove('hidden');
+        previewImage.classList.add('hidden');
+      } else {
+        showToast('Formato no soportado. Usa imagen o video.', 'error');
+        selectedFile = null;
+        fileInput.value = '';
+        return;
+      }
+
+      mediaPreview.classList.remove('hidden');
+    });
+
+    // Eliminar media seleccionada
+    removeMediaBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      previewImage.src = '';
+      previewVideo.src = '';
+      mediaPreview.classList.add('hidden');
+    });
+
+    /* ──────────────────────────────────────────────
+       Publicar
+       ────────────────────────────────────────────── */
+    publishBtn.addEventListener('click', async () => {
+      const content = postContent.value.trim();
+
+      if (!content && !selectedFile) {
+        showToast('Escribe algo o añade una foto/video primero', 'error');
+        return;
+      }
+
+      publishBtn.disabled = true;
+      const originalText = publishBtn.textContent;
+      publishBtn.textContent = 'Publicando…';
+
+      try {
+        let mediaUrl   = null;
+        let mediaType  = null;
+
+        // 1) Subir media a Supabase Storage si hay archivo
+        if (selectedFile) {
+          const fileExt  = selectedFile.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
+          const filePath = `posts/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from(STORAGE_BUCKET)
+            .upload(filePath, selectedFile, { cacheControl: '3600', upsert: false });
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from(STORAGE_BUCKET)
+            .getPublicUrl(filePath);
+
+          mediaUrl  = urlData.publicUrl;
+          mediaType = selectedFile.type.startsWith('image/') ? 'image' : 'video';
+        }
+
+        // 2) Insertar la publicación en la base de datos
+        const { data, error } = await supabase
+          .from('posts')
+          .insert([{
+            content:    content || '',
+            media_url:  mediaUrl,
+            media_type: mediaType,
+            author:     AUTHOR_NAME,
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // 3) Limpiar el compositor
+        postContent.value = '';
+        selectedFile = null;
+        fileInput.value = '';
+        mediaPreview.classList.add('hidden');
+        previewImage.src = '';
+        previewVideo.src = '';
+
+        // 4) Añadir la nueva publicación arriba del feed
+        emptyState.classList.add('hidden');
+        const newPost = renderPost(data, true);
+        feed.insertBefore(newPost, feed.firstChild);
+
+        showToast('¡Publicación creada con éxito! ✨');
+
+      } catch (error) {
+        console.error('Error al publicar:', error);
+        showToast('Error: ' + error.message, 'error');
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = originalText;
+      }
+    });
+
+    /* ──────────────────────────────────────────────
+       Compartir publicación
+       ────────────────────────────────────────────── */
+    window.sharePost = function(postId, shareUrl) {
+      currentShareUrl = shareUrl;
+      shareLinkInput.value = shareUrl;
+
+      // Mostrar botón nativo si el navegador soporta Web Share API
+      if (navigator.share) {
+        nativeShareBtn.classList.remove('hidden');
+        nativeShareBtn.classList.add('flex');
+      } else {
+        nativeShareBtn.classList.add('hidden');
+        nativeShareBtn.classList.remove('flex');
+      }
+
+      shareModal.classList.add('show');
+    };
+
+    // Copiar enlace
+    copyLinkBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(currentShareUrl);
+        showToast('¡Enlace copiado al portapapeles! 📋');
+      } catch (e) {
+        shareLinkInput.select();
+        document.execCommand('copy');
+        showToast('¡Enlace copiado! 📋');
+      }
+    });
+
+    // Compartir nativo (Web Share API)
+    nativeShareBtn.addEventListener('click', async () => {
+      try {
+        await navigator.share({
+          title: 'Publicación de Don Smaily Chickles',
+          text: 'Mira esta publicación',
+          url:  currentShareUrl,
         });
+      } catch (e) {
+        /* El usuario canceló — no hacer nada */
+      }
+    });
 
-        // 😊 Seleccionar reacción predeterminada
-        reactionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                reactionBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedReaction = btn.dataset.reaction;
-                selectedReactionEl.textContent = selectedReaction;
-            });
-        });
+    // Botones de redes sociales
+    document.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const platform = btn.dataset.share;
+        const url  = encodeURIComponent(currentShareUrl);
+        const text = encodeURIComponent('Mira esta publicación de Don Smaily Chickles');
 
-        // 📤 Subir archivo a Supabase Storage
-        async function uploadMedia(file) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `posts/${fileName}`;
-
-            const { data, error } = await supabase.storage
-                .from('media')
-                .upload(filePath, file);
-
-            if (error) throw error;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('media')
-                .getPublicUrl(filePath);
-
-            return publicUrl;
+        let shareLink = '';
+        switch (platform) {
+          case 'whatsapp':  shareLink = `https://wa.me/?text=${text}%20${url}`; break;
+          case 'twitter':   shareLink = `https://twitter.com/intent/tweet?text=${text}&url=${url}`; break;
+          case 'facebook':  shareLink = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
+          case 'telegram':  shareLink = `https://t.me/share/url?url=${url}&text=${text}`; break;
         }
 
-        // ✍️ Crear nueva publicación
-        async function createPost() {
-            const content = postContent.value.trim();
-            if (!content && !mediaFile) {
-                showNotification('Escribe algo o sube un archivo para publicar', 'error');
-                return;
-            }
+        if (shareLink) window.open(shareLink, '_blank', 'width=600,height=500');
+      });
+    });
 
-            btnPost.disabled = true;
-            btnPost.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+    // Cerrar modal
+    closeShareModal.addEventListener('click', () => shareModal.classList.remove('show'));
+    shareModal.addEventListener('click', (e) => {
+      if (e.target === shareModal) shareModal.classList.remove('show');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') shareModal.classList.remove('show');
+    });
 
-            try {
-                let mediaUrl = null;
-                if (mediaFile) {
-                    mediaUrl = await uploadMedia(mediaFile);
-                }
+    /* ──────────────────────────────────────────────
+       Inicialización
+       ────────────────────────────────────────────── */
+    initSupabase();
 
-                const newPost = {
-                    user_id: currentUser.id,
-                    user_name: currentUser.name,
-                    user_avatar: currentUser.avatar,
-                    content: content,
-                    media_url: mediaUrl,
-                    media_type: mediaFile ? mediaFile.type.split('/')[0] : null,
-                    default_reaction: selectedReaction,
-                    likes: 0,
-                    comments_count: 0
-                };
+    // Detectar si es vista de publicación individual (?post=UUID)
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId    = urlParams.get('post');
 
-                const { data, error } = await supabase
-                    .from('posts')
-                    .insert([newPost])
-                    .select();
-
-                if (error) throw error;
-
-                showNotification('¡Publicación exitosa! 🎉', 'success');
-                resetForm();
-                loadPosts();
-
-            } catch (error) {
-                console.error('Error al publicar:', error);
-                showNotification('Error al publicar: ' + error.message, 'error');
-            } finally {
-                btnPost.disabled = false;
-                btnPost.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar';
-            }
-        }
-
-        // 📄 Cargar todas las publicaciones
-        async function loadPosts() {
-            loadingIndicator.style.display = 'block';
-            postsContainer.innerHTML = '';
-
-            try {
-                const { data: posts, error } = await supabase
-                    .from('posts')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                if (posts.length === 0) {
-                    postsContainer.innerHTML = '<p class="loading">¡Sé el primero en publicar algo! ✨</p>';
-                    return;
-                }
-
-                posts.forEach(post => renderPost(post));
-
-            } catch (error) {
-                console.error('Error al cargar publicaciones:', error);
-                postsContainer.innerHTML = '<p class="loading">Error al cargar las publicaciones</p>';
-            } finally {
-                loadingIndicator.style.display = 'none';
-            }
-        }
-
-        // 🎨 Renderizar una publicación en el HTML
-        function renderPost(post) {
-            const postEl = document.createElement('div');
-            postEl.className = 'post';
-            postEl.innerHTML = `
-                <div class="post-header">
-                    <div class="post-avatar">${post.user_avatar}</div>
-                    <div>
-                        <div class="post-user">${post.user_name}</div>
-                        <div class="post-time">${formatDate(post.created_at)}</div>
-                    </div>
-                </div>
-
-                ${post.content ? `<div class="post-content">${post.content}</div>` : ''}
-
-                ${post.media_url ? `
-                    <div class="post-media">
-                        ${post.media_type === 'image' 
-                            ? `<img src="${post.media_url}" alt="Imagen de la publicación">` 
-                            : `<video src="${post.media_url}" controls></video>`
-                        }
-                    </div>
-                ` : ''}
-
-                <div class="post-stats">
-                    <span>${post.likes} ${post.default_reaction || '❤️'}</span>
-                    <span>${post.comments_count} comentarios</span>
-                </div>
-
-                <div class="post-actions-bar">
-                    <button class="action-btn like-btn" data-id="${post.id}">
-                        <i class="fas fa-heart"></i> Me gusta
-                    </button>
-                    <button class="action-btn comment-btn" data-id="${post.id}">
-                        <i class="fas fa-comment"></i> Comentar
-                    </button>
-                    <button class="action-btn">
-                        <i class="fas fa-share"></i> Compartir
-                    </button>
-                </div>
-
-                <div class="comments-section" id="comments-${post.id}">
-                    <div class="comments-list" data-post-id="${post.id}"></div>
-                    <div class="add-comment">
-                        <input type="text" placeholder="Escribe un comentario..." class="comment-input" data-id="${post.id}">
-                        <button class="send-comment" data-id="${post.id}">Enviar</button>
-                    </div>
-                </div>
-            `;
-
-            postsContainer.appendChild(postEl);
-        }
-
-        // 📅 Formatear fecha
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return new Intl.DateTimeFormat('es-MX', {
-                day: 'numeric',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(date);
-        }
-
-        // 🔔 Mostrar notificaciones
-        function showNotification(message, type = 'success') {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            notification.style.background = type === 'success' 
-                ? 'var(--gradient)' 
-                : 'linear-gradient(135deg, #ff4757, #ff3838)';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-
-        // 🔄 Reiniciar formulario
-        function resetForm() {
-            postContent.value = '';
-            mediaUpload.value = '';
-            fileName.textContent = '';
-            previewContainer.innerHTML = '';
-            previewContainer.style.display = 'none';
-            selectedReaction = null;
-            selectedReactionEl.textContent = '';
-            reactionBtns.forEach(b => b.classList.remove('active'));
-        }
-
-        // 🎯 Eventos
-        btnPost.addEventListener('click', createPost);
-
-        // Delegación de eventos para publicaciones dinámicas
-        postsContainer.addEventListener('click', async (e) => {
-            // Me gusta
-            if (e.target.closest('.like-btn')) {
-                const btn = e.target.closest('.like-btn');
-                const postId = btn.dataset.id;
-                btn.classList.toggle('liked');
-                
-                const { error } = await supabase.rpc('increment_likes', { post_id: postId });
-                if (!error) loadPosts();
-            }
-
-            // Mostrar/ocultar comentarios
-            if (e.target.closest('.comment-btn')) {
-                const postId = e.target.closest('.comment-btn').dataset.id;
-                const commentsSection = document.getElementById(`comments-${postId}`);
-                commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
-            }
-
-            // Enviar comentario
-            if (e.target.closest('.send-comment')) {
-                const postId = e.target.closest('.send-comment').dataset.id;
-                const input = document.querySelector(`.comment-input[data-id="${postId}"]`);
-                const text = input.value.trim();
-                
-                if (!text) return;
-
-                await supabase.from('comments').insert([{
-                    post_id: postId,
-                    user_name: currentUser.name,
-                    user_avatar: currentUser.avatar,
-                    content: text
-                }]);
-
-                input.value = '';
-                loadPosts();
-            }
-        });
-
-        // 🚀 Iniciar aplicación
-        loadPosts();
-    </script>
+    if (postId) {
+      loadSinglePost(postId);
+    } else {
+      loadPosts();
+    }
+  </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
